@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SI_Lab_04
 {
@@ -13,7 +14,7 @@ namespace SI_Lab_04
             //GenerateArffFile("test");
 
             //ile procent to train
-            GenerateSets(0.9);
+            GenerateSets(1.0);
 
         }
 
@@ -67,6 +68,10 @@ namespace SI_Lab_04
             {
                 var content = File.ReadAllLines(file);
                 var contentLine = string.Join(" ", content);
+
+                Regex rgx = new Regex("[^a-zA-ZżŹźŹóÓśŚćĆńŃąĄłŁ0-9 -]");
+                contentLine = rgx.Replace(contentLine, "");
+
                 var cat = file.Split("\\")[1].Split("_")[0];
                 dataLines.Add(BuildArffLine(contentLine, cat));
             }
