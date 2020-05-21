@@ -10,12 +10,17 @@ namespace SI_Lab_04
     class Program
     {
         static void Main(string[] args)
-        {
-            //GenerateArffFile("test");
-
+        { 
+            //train i valid
+            string path = "E:/Projekty/SI/wiki_train_34_categories_data";
             //ile procent to train
-            GenerateSets(1.0);
+            GenerateSets(1.0, path);
 
+            //test
+            string path2 = "E:/Projekty/SI/wiki_test_34_categories_data";
+            var categoriesDis = GetCategories(path2);
+            var dataLines = GetLinesFromFiles(path2);
+            GenerateArffFile("test", dataLines, categoriesDis);
         }
 
         static void GenerateArffFile(string name, List<string> data, List<string> categories)
@@ -39,9 +44,7 @@ namespace SI_Lab_04
             }
 
             string filename = string.Format("E:/Projekty/SI/{0}.arff", name);
-
             File.WriteAllText(filename, arff.ToString());
-
             Console.WriteLine("Done");
         }
 
@@ -50,31 +53,10 @@ namespace SI_Lab_04
             return string.Format("\"{0}\", {1}", content, category);
         }
 
-        static void GenerateSets(double ratio)
+        static void GenerateSets(double ratio, string path)
         {
-            string[] files = Directory.GetFiles("E:/Projekty/SI/wiki_train_34_categories_data");
-            var categories = new List<string>();
-
-            foreach (var file in files)
-            {
-                categories.Add(file.Split("\\")[1].Split("_")[0]);
-            }
-
-            var categoriesDis = categories.Distinct();
-
-            var dataLines = new List<string>();
-
-            foreach (var file in files)
-            {
-                var content = File.ReadAllLines(file);
-                var contentLine = string.Join(" ", content);
-
-                Regex rgx = new Regex("[^a-zA-ZżŹźŹóÓśŚćĆńŃąĄłŁ0-9 -]");
-                contentLine = rgx.Replace(contentLine, "");
-
-                var cat = file.Split("\\")[1].Split("_")[0];
-                dataLines.Add(BuildArffLine(contentLine, cat));
-            }
+            var categoriesDis = GetCategories(path);
+            var dataLines = GetLinesFromFiles(path);
 
             Random rnd = new Random();
             dataLines = dataLines.OrderBy(a => rnd.Next()).ToList();
@@ -85,8 +67,41 @@ namespace SI_Lab_04
             Console.WriteLine(firstPart.Count);
             Console.WriteLine(secondPart.Count);
 
-            GenerateArffFile("train", firstPart, categoriesDis.ToList());
-            GenerateArffFile("validate", secondPart, categoriesDis.ToList());
+            GenerateArffFile("train", firstPart, categoriesDis);
+            GenerateArffFile("validate", secondPart, categoriesDis);
+        }
+
+        static List<string> GetLinesFromFiles(string path)
+        {
+            string[] files = Directory.GetFiles(path);
+
+            var dataLines = new List<string>();
+
+            Regex rgx = new Regex("[^a-zA-ŻżźŹóÓśŚćĆńŃąĄęĘłŁ0-9 -]");
+
+            foreach (var file in files)
+            {
+                var content = File.ReadAllLines(file);
+                var contentLine = string.Join(" ", content);
+                contentLine = rgx.Replace(contentLine, "");
+                var cat = file.Split("\\")[1].Split("_")[0];
+                dataLines.Add(BuildArffLine(contentLine, cat));
+            }
+
+            return dataLines;
+        }
+
+        static List<string> GetCategories(string path)
+        {
+            string[] files = Directory.GetFiles(path);
+            var categories = new List<string>();
+
+            foreach (var file in files)
+            {
+                categories.Add(file.Split("\\")[1].Split("_")[0]);
+            }
+
+            return categories.Distinct().ToList();
         }
     }
 }
