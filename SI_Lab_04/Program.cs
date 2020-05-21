@@ -11,16 +11,18 @@ namespace SI_Lab_04
     {
         static void Main(string[] args)
         { 
-            //train i valid
+            ////train i valid
             string path = "E:/Projekty/SI/wiki_train_34_categories_data";
-            //ile procent to train
-            GenerateSets(1.0, path);
+            ////ile procent to train
+            //GenerateSets(1.0, path);
 
             //test
             string path2 = "E:/Projekty/SI/wiki_test_34_categories_data";
             var categoriesDis = GetCategories(path2);
             var dataLines = GetLinesFromFiles(path2);
-            GenerateArffFile("test", dataLines, categoriesDis);
+            var dataLines2 = GetLinesFromFiles(path);
+            dataLines.AddRange(dataLines2);
+            GenerateArffFile("train", dataLines, categoriesDis);
         }
 
         static void GenerateArffFile(string name, List<string> data, List<string> categories)
